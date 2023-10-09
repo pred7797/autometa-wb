@@ -5,7 +5,6 @@ import { useState, useEffect } from "react"
 
 export default function Home() {
 
-  const { data: Session } = useSession();
   
 
   return (

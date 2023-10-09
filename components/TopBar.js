@@ -3,8 +3,7 @@ import { useSession } from "next-auth/react";
 
 const TopBar = () => {
 
-  const { data: session } = useSession();
-  
+    
 
   return (
     <div className="top-bar">
