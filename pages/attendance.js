@@ -24,25 +24,38 @@ export default function Attendance() {
             document.getElementById("message-container").appendChild(div);
         }
 
-        var canvas = document.getElementById('canvas')
-        QRCode.toCanvas(canvas, `${socket.id}`, function (error) {
-            if (error) console.error(error)
-            console.log('success!');
-        })
-            
-        socket.on('connect', () => {
-            var canvas = document.getElementById('canvas')
+        function generateQRCode() {
+            const canvas = document.getElementById('canvas');
             QRCode.toCanvas(canvas, `${socket.id}`, function (error) {
-                if (error) console.error(error)
-                console.log('success!');
-            })
-            console.log(`connected ${socket.id}`);
-            displayMessage(`connected with id ${socket.id}`);
+                if (error) console.error(error);
+                console.log('QR Code generated successfully!');
+            });
+        }
 
-        });
-        socket.on('custom', (message) => {
-            displayMessage(`message: ${message}`);
-        });
+        const handleConnect = () => {
+            generateQRCode();
+            console.log(`Connected with id ${socket.id}`);
+            displayMessage(`Connected with id ${socket.id}`);
+        };
+
+        // Event listener for custom messages
+        const handleCustomMessage = (message) => {
+            displayMessage(`* ${message}`);
+        };
+
+        // Add event listeners
+        socket.on('connect', handleConnect);
+        socket.on('custom', handleCustomMessage);
+
+        // Generate QR code on initial mount
+        generateQRCode();
+
+        // Cleanup function to remove event listeners and disconnect socket
+        return () => {
+            socket.off('connect', handleConnect);
+            socket.off('custom', handleCustomMessage);
+            socket.disconnect();
+        };
     }, [])
 
 
