@@ -114,3 +114,12 @@ input.remember-me{
 .main-dashboard{
   display: block;
 }
+
+.cross-button{
+  max-width: 30px;
+  margin: 1px 2px;
+}
+
+.message-cell{
+  display: flex;
+}

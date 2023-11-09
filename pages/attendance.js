@@ -1,28 +1,20 @@
-// Import the Socket.IO client library
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-
-var QRCode = require('qrcode')
-
-
-
+import QRCode from 'qrcode';
 
 export default function Attendance() {
-
     const router = useRouter();
     const selectedOption = router.query.selectedOption;
 
+    const [messages, setMessages] = useState([]);
+
+    const handleDeleteMessage = (id) => {
+        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
+    };
+
     useEffect(() => {
-
-        // Connect to the Socket.IO server
         const socket = io('http://localhost:3002');
-
-        function displayMessage(message) {
-            const div = document.createElement('div');
-            div.textContent = message;
-            document.getElementById("message-container").appendChild(div);
-        }
 
         function generateQRCode() {
             const canvas = document.getElementById('canvas');
@@ -35,37 +27,38 @@ export default function Attendance() {
         const handleConnect = () => {
             generateQRCode();
             console.log(`Connected with id ${socket.id}`);
-            displayMessage(`Connected with id ${socket.id}`);
+            setMessages((prevMessages) => [...prevMessages, { content: `Connected with id ${socket.id}`, id: Date.now() }]);
         };
 
-        // Event listener for custom messages
         const handleCustomMessage = (message) => {
-            displayMessage(`* ${message}`);
+            const newMessage = { content: `${message}`, id: Date.now() };
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
         };
 
-        // Add event listeners
         socket.on('connect', handleConnect);
         socket.on('custom', handleCustomMessage);
 
-        // Generate QR code on initial mount
         generateQRCode();
 
-        // Cleanup function to remove event listeners and disconnect socket
         return () => {
             socket.off('connect', handleConnect);
             socket.off('custom', handleCustomMessage);
             socket.disconnect();
         };
-    }, [])
-
+    }, []);
 
     return (
         <div>
             <p>{selectedOption}</p>
             <canvas id="canvas"></canvas>
-            <div id='message-container' ></div>
+            <div id="message-container">
+                {messages.map((message) => (
+                    <div key={message.id} className="message-cell">
+                        <button className='cross-button' onClick={() => handleDeleteMessage(message.id)}>X</button>
+                        <span>{message.content}</span>
+                    </div>
+                ))}
+            </div>
         </div>
-    )
+    );
 }
-
-
