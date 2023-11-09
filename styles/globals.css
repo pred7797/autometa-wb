@@ -110,3 +110,7 @@ input.remember-me{
   width: 220px;
   height:75px;
 }
+
+.main-dashboard{
+  display: block;
+}
